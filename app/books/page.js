@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
@@ -9,7 +9,7 @@ import BookCard from "@/components/BookCard";
 
 const BOOKS_PER_PAGE = 12;
 
-export default function BooksPage() {
+function BooksPageContent() {
     const searchParams = useSearchParams();
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All");
@@ -29,8 +29,12 @@ export default function BooksPage() {
         return result;
     }, [search, selectedCategory]);
 
+    const paginated = useMemo(() => {
+        const start = (page - 1) * BOOKS_PER_PAGE;
+        return filtered.slice(start, start + BOOKS_PER_PAGE);
+    }, [filtered, page]);
+
     const totalPages = Math.ceil(filtered.length / BOOKS_PER_PAGE);
-    const paginated = filtered.slice((page - 1) * BOOKS_PER_PAGE, page * BOOKS_PER_PAGE);
 
     const handleCategoryChange = (cat) => {
         setSelectedCategory(cat);
@@ -38,39 +42,50 @@ export default function BooksPage() {
     };
 
     return (
-        <main className="pt-24 pb-16 min-h-screen">
+        <main className="min-h-screen pt-24 pb-16 bg-background">
             <div className="container mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
+                    className="mb-12"
                 >
-                    <h1 className="font-display text-4xl md:text-5xl font-bold mb-2">Catalog</h1>
-                    <p className="text-muted-foreground mb-8">Browse our curated collection</p>
+                    <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">Book Catalog</h1>
+                    <p className="text-muted-foreground text-lg">Explore our collection of {books.length} books</p>
                 </motion.div>
 
                 {/* Filters */}
-                <div className="flex flex-col md:flex-row gap-4 mb-10">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <div className="flex flex-col md:flex-row gap-4 mb-8">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Search by title or author..."
                             value={search}
-                            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-md bg-card border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300"
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setPage(1);
+                            }}
+                            className="w-full pl-10 pr-4 py-3 rounded-md border border-border bg-card focus:border-primary focus:outline-none transition-colors"
                         />
                     </div>
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => handleCategoryChange(e.target.value)}
-                        className="px-4 py-2.5 rounded-md bg-card border border-border text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-300 cursor-pointer"
-                    >
-                        <option value="All">All Categories</option>
-                        {categories.map((cat) => (
-                            <option key={cat} value={cat}>{cat}</option>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        {["All", ...categories].map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => {
+                                    setSelectedCategory(cat);
+                                    setPage(1);
+                                }}
+                                className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-all duration-300 ${selectedCategory === cat
+                                    ? "bg-primary text-primary-foreground shadow-md"
+                                    : "bg-card border border-border hover:border-primary"
+                                    }`}
+                            >
+                                {cat}
+                            </button>
                         ))}
-                    </select>
+                    </div>
                 </div>
 
                 {/* Grid */}
@@ -111,5 +126,20 @@ export default function BooksPage() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function BooksPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen pt-24 pb-16 bg-background flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading books...</p>
+                </div>
+            </div>
+        }>
+            <BooksPageContent />
+        </Suspense>
     );
 }
