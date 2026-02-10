@@ -4,7 +4,7 @@ A modern, responsive online bookstore built with Next.js, React, and Tailwind CS
 
 ## 🚀 Live Demo
 
-[View Live Demo](https://your-deployment-url.vercel.app) *(Deploy to Vercel and update this link)*
+[View Live Demo]-https://book-haven-9hqs.vercel.app/
 
 ## ✨ Features
 
@@ -65,7 +65,7 @@ A modern, responsive online bookstore built with Next.js, React, and Tailwind CS
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/cinematic-shelves-nextjs.git
+   git clone https://github.com/rizzabh6717/Book-Haven.git
    cd cinematic-shelves-nextjs
    ```
 
@@ -196,18 +196,3 @@ Each book includes:
 - Edge (latest)
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
-## 🤝 Contributing
-
-This is a portfolio/internship project. Feedback and suggestions are welcome!
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
-## 👨‍💻 Author
-
-Created as part of a Frontend Developer Intern challenge.
-
----
-
-**Built with ❤️ using Next.js, React, and Tailwind CSS**
